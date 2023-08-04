@@ -8,7 +8,7 @@ let labels = ["World", "N.Y.", "Business", "Arts", "Science"];
 
 export default function Page() {
   let [activeSpeed, setActiveSpeed] = useState(1);
-  let [active, set] = useState(1);
+  let [active, set] = useState(0);
 
   return (
     <div className="bg-black min-h-screen flex flex-col justify-center items-center">
@@ -24,9 +24,9 @@ export default function Page() {
             <button
               onClick={() => set(i)}
               key={i}
-              className="px-6 bg-black/50 hover:bg-black/75 transition rounded-full h-12 relative flex items-center justify-center text-white"
+              className="w-20 bg-black/50 hover:bg-black/75 transition rounded-full h-12 relative flex items-center justify-center text-white"
             >
-              <span className="invisible">{labels[i]}</span>
+              <span className="iinvisible">{i + 1}</span>
               {i === active && (
                 <motion.span
                   layoutId="bubble"
@@ -35,14 +35,13 @@ export default function Page() {
                     bounce: 0.2,
                     duration: 0.6 / activeSpeed,
                   }}
-                  className="absolute pointer-events-none z-10 inset-0 rounded-full bg-white text-black flex gap-4 ooverflow-hidden"
+                  className="absolute pointer-events-none z-10 inset-0 rounded-full bg-white text-black flex gap-4 overflow-hidden"
                 >
                   {[...Array(5).keys()].map((k) => (
                     <motion.span
-                      // style={{ x: 96 * k - 96 * i }}
-                      style={{ x: 96 * k }}
+                      style={{ x: 96 * k - 96 * i }}
                       key={k}
-                      className="px-6 h-12 absolute flex items-center justify-center shrink-0"
+                      className="w-20 h-12 absolute flex items-center justify-center shrink-0"
                       layoutId={`b-${k}`}
                       transition={{
                         type: "spring",
@@ -50,7 +49,7 @@ export default function Page() {
                         duration: 0.6 / activeSpeed,
                       }}
                     >
-                      {labels[k]}
+                      {k + 1}
                     </motion.span>
                   ))}
                 </motion.span>
