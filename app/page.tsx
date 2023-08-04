@@ -34,14 +34,43 @@ export default function Page() {
       >
         <div className="flex gap-5" ref={ref}>
           {[...Array(5).keys()].map((i) => (
-            <Something
-              offset={offsets[i]}
-              set={set}
-              i={i}
-              activeSpeed={activeSpeed}
-              active={active}
+            <button
               key={i}
-            />
+              onClick={() => set(i)}
+              className="px-6 bg-black/50 hover:bg-black/75 transition rounded-full py-2 relative flex items-center justify-center text-white"
+            >
+              <span className="iinvisible">{labels[i]}</span>
+              {i === active && (
+                <motion.span
+                  layoutId="bubble"
+                  transition={{
+                    type: "spring",
+                    bounce: 0.2,
+                    duration: 0.6 / activeSpeed,
+                  }}
+                  style={{
+                    borderRadius: 9999,
+                  }}
+                  className="absolute pointer-events-none z-10 inset-0 bg-white text-black flex gap-5 overflow-hidden"
+                >
+                  {[...Array(5).keys()].map((k) => (
+                    <motion.span
+                      style={{ x: -offsets[i] }}
+                      key={k}
+                      className="px-6 py-2 flex items-center justify-center shrink-0"
+                      layoutId={`b-${k}`}
+                      transition={{
+                        type: "spring",
+                        bounce: 0.2,
+                        duration: 0.6 / activeSpeed,
+                      }}
+                    >
+                      {labels[k]}
+                    </motion.span>
+                  ))}
+                </motion.span>
+              )}
+            </button>
           ))}
         </div>
       </div>
@@ -62,46 +91,5 @@ export default function Page() {
         ))}
       </div>
     </div>
-  );
-}
-
-function Something({ set, i, active, activeSpeed, offset }) {
-  return (
-    <button
-      onClick={() => set(i)}
-      className="px-6 bg-black/50 hover:bg-black/75 transition rounded-full py-2 relative flex items-center justify-center text-white"
-    >
-      <span className="iinvisible">{labels[i]}</span>
-      {i === active && (
-        <motion.span
-          layoutId="bubble"
-          transition={{
-            type: "spring",
-            bounce: 0.2,
-            duration: 0.6 / activeSpeed,
-          }}
-          style={{
-            borderRadius: 9999,
-          }}
-          className="absolute pointer-events-none z-10 inset-0 bg-white text-black flex gap-5 overflow-hidden"
-        >
-          {[...Array(5).keys()].map((k) => (
-            <motion.span
-              style={{ x: -offset }}
-              key={k}
-              className="px-6 py-2 flex items-center justify-center shrink-0"
-              layoutId={`b-${k}`}
-              transition={{
-                type: "spring",
-                bounce: 0.2,
-                duration: 0.6 / activeSpeed,
-              }}
-            >
-              {labels[k]}
-            </motion.span>
-          ))}
-        </motion.span>
-      )}
-    </button>
   );
 }
