@@ -40,7 +40,7 @@ export default function Page() {
               className="px-6 bg-black/50 hover:bg-black/75 transition rounded-full py-2 relative flex items-center justify-center text-white"
             >
               <span className="iinvisible">{labels[i]}</span>
-              {i === active && (
+              {/* {i === active && (
                 <motion.span
                   layoutId="bubble"
                   transition={{
@@ -69,7 +69,7 @@ export default function Page() {
                     </motion.span>
                   ))}
                 </motion.span>
-              )}
+              )} */}
             </button>
           ))}
         </div>
