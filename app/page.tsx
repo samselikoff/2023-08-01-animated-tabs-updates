@@ -1,94 +1,128 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import useResizeObserver from "use-resize-observer";
 
-let speeds = [1, 0.1];
-let labels = ["World", "N.Y.", "Business", "Arts", "Science"];
+let tabs = [
+  { id: "world", label: "World" },
+  { id: "ny", label: "N.Y." },
+  { id: "business", label: "Business" },
+  { id: "arts", label: "Arts" },
+  { id: "science", label: "Science" },
+];
 
-export default function Page() {
-  let [activeSpeed, setActiveSpeed] = useState(1);
-  let [active, set] = useState(1);
+export default function Demo() {
+  let [activeTab, setActiveTab] = useState(tabs[1].id);
+  let [speed, setSpeed] = useState(1);
+  let [bounds, setBounds] = useState({
+    measured: false,
+    animate: false,
+    left: 0,
+    right: 0,
+  });
   let ref = useRef<HTMLDivElement>(null);
-  let [offsets, setOffsets] = useState<number[]>([]);
 
-  useLayoutEffect(() => {
+  useResizeObserver<HTMLDivElement>({
+    ref,
+    onResize: ({ width }) => {
+      if (ref.current) {
+        let parentBounds = ref.current.getBoundingClientRect();
+        let activeBounds =
+          ref.current.children[
+            tabs.findIndex((t) => t.id === activeTab)
+          ].getBoundingClientRect();
+
+        setBounds({
+          measured: true,
+          animate: false,
+          left: activeBounds.left - parentBounds.left + 8,
+          right: parentBounds.right - activeBounds.right + 8,
+        });
+      }
+    },
+  });
+
+  useEffect(() => {
     if (ref.current) {
-      let parentLeft = ref.current.getBoundingClientRect().left;
-      let newOffsets = [...ref.current.children].map(
-        (el) => el.getBoundingClientRect().left - parentLeft,
-      );
+      let parentBounds = ref.current.getBoundingClientRect();
+      let activeBounds =
+        ref.current.children[
+          tabs.findIndex((t) => t.id === activeTab)
+        ].getBoundingClientRect();
 
-      setOffsets(newOffsets);
+      setBounds({
+        measured: true,
+        animate: true,
+        left: activeBounds.left - parentBounds.left + 8,
+        right: parentBounds.right - activeBounds.right + 8,
+      });
     }
-  }, []);
+  }, [activeTab]);
+
+  console.log(bounds);
 
   return (
-    <div className="bg-black min-h-screen flex flex-col justify-center items-center">
-      <div
-        style={{
-          backgroundImage:
-            "url(https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2564&q=80)",
-        }}
-        className="h-80 w-[600px] flex flex-col text-sm bg-cover bg-siz bg-no-repeat justify-center items-center bg-zinc-950 bg-bottom rounded-xl"
-      >
-        <div className="flex gap-5" ref={ref}>
-          {[...Array(5).keys()].map((i) => (
+    <div className="relative flex aspect-[5/4] min-w-0 flex-col items-center justify-center rounded-lg bg-gray-800 ring-1 ring-inset ring-white/10 sm:aspect-[4/3] md:aspect-[2/1]">
+      <div className="absolute right-0 top-0 inline-flex space-x-3 p-4">
+        {[0.1, 1].map((factor) => (
+          <button
+            key={factor}
+            onClick={() => setSpeed(factor)}
+            className={`${
+              factor === speed ? "text-white" : "text-white/50 hover:text-white"
+            } inline-flex h-8 w-8 items-center justify-center rounded text-sm font-semibold transition`}
+          >
+            {factor}x
+          </button>
+        ))}
+      </div>
+
+      <div className="relative">
+        <div className="flex gap-1 sm:gap-8" ref={ref}>
+          {tabs.map((tab, i) => (
             <button
-              key={i}
-              onClick={() => set(i)}
-              className="px-6 bg-black/50 hover:bg-black/75 transition rounded-full py-2 relative flex items-center justify-center text-white"
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`${
+                activeTab === tab.id && !bounds.measured
+                  ? "bg-lime-400 text-lime-900"
+                  : activeTab === tab.id
+                  ? "text-white"
+                  : "text-white hover:text-white/60"
+              } relative rounded-full px-3 py-1.5 text-sm font-medium outline-sky-400 transition focus-visible:outline-2`}
+              style={{
+                WebkitTapHighlightColor: "transparent",
+              }}
             >
-              <span className="iinvisible">{labels[i]}</span>
-              {/* {i === active && (
-                <motion.span
-                  layoutId="bubble"
-                  transition={{
-                    type: "spring",
-                    bounce: 0.2,
-                    duration: 0.6 / activeSpeed,
-                  }}
-                  style={{
-                    borderRadius: 9999,
-                  }}
-                  className="absolute pointer-events-none z-10 inset-0 bg-white text-black flex gap-5 overflow-hidden"
-                >
-                  {[...Array(5).keys()].map((k) => (
-                    <motion.span
-                      style={{ x: -offsets[i] }}
-                      key={k}
-                      className="px-6 py-2 flex items-center justify-center shrink-0"
-                      layoutId={`b-${k}`}
-                      transition={{
-                        type: "spring",
-                        bounce: 0.2,
-                        duration: 0.6 / activeSpeed,
-                      }}
-                    >
-                      {labels[k]}
-                    </motion.span>
-                  ))}
-                </motion.span>
-              )} */}
+              {tab.label}
             </button>
           ))}
         </div>
-      </div>
 
-      <div className="w-[600px] mx-auto mt-4 flex gap-4">
-        {speeds.map((speed) => (
-          <button
-            className={
-              speed === activeSpeed
-                ? "text-white"
-                : "text-white/50 hover:text-white"
-            }
-            onClick={() => setActiveSpeed(speed)}
-            key={speed}
+        {bounds.measured && (
+          <motion.div
+            className="pointer-events-none absolute -inset-2 flex gap-1 overflow-visible bg-lime-400 p-2 text-lime-900 sm:gap-8"
+            transition={{
+              type: "spring",
+              bounce: 0.2,
+              duration: bounds.animate ? 0.6 / speed : 0,
+            }}
+            initial={false}
+            animate={{
+              clipPath: `inset(8px ${bounds.right}px 8px ${bounds.left}px round 9999px)`,
+            }}
           >
-            {speed}x
-          </button>
-        ))}
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                className="relative rounded-full px-3 py-1.5 text-sm font-medium outline-sky-400 transition focus-visible:outline-2"
+              >
+                {tab.label}
+              </button>
+            ))}
+          </motion.div>
+        )}
       </div>
     </div>
   );
